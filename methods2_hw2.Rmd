@@ -43,8 +43,11 @@ summary(fit1)$deviance
 summary(fit2)$deviance
 summary(fit3)$deviance
 
-###
-predicted1 = predict(fit1, data.frame(pred = 0.01), se.fit = TRUE, type = 'response')
+### Predictions
+predicted1 = predict(fit1, data.frame(dose = 0.01), type = 'response')
+predicted2 = predict(fit2, data.frame(dose = 0.01), type = 'response')
+predicted3 = predict(fit3, data.frame(dose = 0.01), type = 'response')
+
 
 ```
 
