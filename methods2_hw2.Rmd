@@ -21,9 +21,30 @@ fit3 = glm(cbind(dying,30-dying)~dose, family=binomial(link='cloglog'))
 CI1=fit1$coefficients + kronecker(t(c(0,qnorm(0.025),-qnorm(0.025))),t(t(sqrt(diag(vcov(fit1))))))
 out=cbind(exp(CI1)[-1,,drop=FALSE],coef(summary(fit1))[-1,4,drop=FALSE])
 colnames(out)=c('OR','95% CI','95% CI','p-value')
-rownames(out)=c('timeoff')
+rownames(out)=c('dose')
 out # p=0.008, OR=1.31(1.07,1.59) (odds of .... in .... vs ...)
 
+# CI for probit
+CI2=fit2$coefficients + kronecker(t(c(0,qnorm(0.025),-qnorm(0.025))),t(t(sqrt(diag(vcov(fit2))))))
+out=cbind(exp(CI2)[-1,,drop=FALSE],coef(summary(fit2))[-1,4,drop=FALSE])
+colnames(out)=c('OR','95% CI','95% CI','p-value')
+rownames(out)=c('dose')
+out
+
+# CI for cloglog
+CI3=fit3$coefficients + kronecker(t(c(0,qnorm(0.025),-qnorm(0.025))),t(t(sqrt(diag(vcov(fit3))))))
+out=cbind(exp(CI3)[-1,,drop=FALSE],coef(summary(fit3))[-1,4,drop=FALSE])
+colnames(out)=c('OR','95% CI','95% CI','p-value')
+rownames(out)=c('dose')
+out
+
+### Deviance
+summary(fit1)$deviance
+summary(fit2)$deviance
+summary(fit3)$deviance
+
+###
+predicted1 = predict(fit1, data.frame(pred = 0.01), se.fit = TRUE, type = 'response')
 
 ```
 
