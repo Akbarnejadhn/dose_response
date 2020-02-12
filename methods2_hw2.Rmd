@@ -1,0 +1,29 @@
+---
+title: "dose_response"
+author: "Hana Akbarnejad"
+date: "2/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+dose = c(0:4)
+dying = c(2, 8, 15, 23, 27)
+data1 = cbind(dose, dying)
+data1 = as.data.frame(data1)
+
+fit1 = glm(cbind(dying,30-dying)~dose, family=binomial(link='logit'))
+fit2 = glm(cbind(dying,30-dying)~dose, family=binomial(link='probit'))
+fit3 = glm(cbind(dying,30-dying)~dose, family=binomial(link='cloglog'))
+
+### CI's
+# CI for logit
+CI1=fit1$coefficients + kronecker(t(c(0,qnorm(0.025),-qnorm(0.025))),t(t(sqrt(diag(vcov(fit1))))))
+out=cbind(exp(CI1)[-1,,drop=FALSE],coef(summary(fit1))[-1,4,drop=FALSE])
+colnames(out)=c('OR','95% CI','95% CI','p-value')
+rownames(out)=c('timeoff')
+out # p=0.008, OR=1.31(1.07,1.59) (odds of .... in .... vs ...)
+
+
+```
+
