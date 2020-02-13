@@ -5,7 +5,14 @@ date: "2/12/2020"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r}
+library(tidyverse)
+```
+
+ 
+```{r}
+
+# Problem 1-i
 
 dose = c(0:4)
 dying = c(2, 8, 15, 23, 27)
@@ -18,25 +25,23 @@ fit3 = glm(cbind(dying,30-dying)~dose, family=binomial(link='cloglog'))
 
 ### CI's
 # CI for logit
-CI1=fit1$coefficients + kronecker(t(c(0,qnorm(0.025),-qnorm(0.025))),t(t(sqrt(diag(vcov(fit1))))))
-out=cbind(exp(CI1)[-1,,drop=FALSE],coef(summary(fit1))[-1,4,drop=FALSE])
-colnames(out)=c('OR','95% CI','95% CI','p-value')
-rownames(out)=c('dose')
-out # p=0.008, OR=1.31(1.07,1.59) (odds of .... in .... vs ...)
+vcov(fit1) # covariance of beta MLE (fisher information inverse)
+beta=fit1$coefficients[2]
+se=sqrt(vcov(fit1)[2,2]) # (same as in summary(glm_logit))
+beta+c(qnorm(0.025),0,-qnorm(0.025))*se
+
 
 # CI for probit
-CI2=fit2$coefficients + kronecker(t(c(0,qnorm(0.025),-qnorm(0.025))),t(t(sqrt(diag(vcov(fit2))))))
-out=cbind(exp(CI2)[-1,,drop=FALSE],coef(summary(fit2))[-1,4,drop=FALSE])
-colnames(out)=c('OR','95% CI','95% CI','p-value')
-rownames(out)=c('dose')
-out
+vcov(fit2) # covariance of beta MLE (fisher information inverse)
+beta=fit2$coefficients[2]
+se=sqrt(vcov(fit2)[2,2]) # (same as in summary(glm_logit))
+beta+c(qnorm(0.025),0,-qnorm(0.025))*se
 
 # CI for cloglog
-CI3=fit3$coefficients + kronecker(t(c(0,qnorm(0.025),-qnorm(0.025))),t(t(sqrt(diag(vcov(fit3))))))
-out=cbind(exp(CI3)[-1,,drop=FALSE],coef(summary(fit3))[-1,4,drop=FALSE])
-colnames(out)=c('OR','95% CI','95% CI','p-value')
-rownames(out)=c('dose')
-out
+vcov(fit3) # covariance of beta MLE (fisher information inverse)
+beta=fit3$coefficients[2]
+se=sqrt(vcov(fit3)[2,2]) # (same as in summary(glm_logit))
+beta+c(qnorm(0.025),0,-qnorm(0.025))*se
 
 ### Deviance
 summary(fit1)$deviance
@@ -48,6 +53,69 @@ predicted1 = predict(fit1, data.frame(dose = 0.01), type = 'response')
 predicted2 = predict(fit2, data.frame(dose = 0.01), type = 'response')
 predicted3 = predict(fit3, data.frame(dose = 0.01), type = 'response')
 
+```
 
+I am gonna create my table here
+
+# Problem 1-ii
+Suppose that the dose level is in natural logarithm scale, estimate LD50 with
+90% confidence interval based on the three models.
+
+```{r}
+
+## Problem 1-ii
+# logit LD50 and CI
+beta0=fit1$coefficients[1]
+beta1=fit1$coefficients[2]
+betacov=vcov(fit1) # inverse fisher information
+x0fit=-beta0/beta1 
+exp(x0fit) # point estimate of LD50  ## this is our xLD50?
+varx0=betacov[1,1]/(beta1^2)+betacov[2,2]*(beta0^2)/(beta1^4)-2*betacov[1,2]*beta0/(beta1^3)
+c(x0fit,sqrt(varx0)) # point est and se
+exp(x0fit+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0)) # 95% CI for LD50
+
+# probit LD50 and CI
+beta0_1=fit2$coefficients[1]
+beta1_1=fit2$coefficients[2]
+betacov_1=vcov(fit2) # inverse fisher information
+x0fit_1=-beta0_1/beta1_1 
+exp(x0fit_1) # point estimate of LD50  ## this is our xLD50?
+varx0_1=betacov_1[1,1]/(beta1_1^2)+betacov_1[2,2]*(beta0_1^2)/(beta1_1^4)-2*betacov_1[1,2]*beta0_1/(beta1_1^3)
+c(x0fit_1,sqrt(varx0_1)) # point est and se
+exp(x0fit_1+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_1))
+
+# cloglog LD50 and CI
+beta0_2=fit3$coefficients[1]
+beta1_2=fit3$coefficients[2]
+betacov_2=vcov(fit3) # inverse fisher information
+x0fit_2= (log(log(2))- beta0_2)/beta1_2 
+exp(x0fit_2) # point estimate of LD50  ## this is our xLD50?
+varx0_2=betacov_2[1,1]/(beta1_2^2)+betacov_2[2,2]*(beta0_2^2)/(beta1_2^4)-2*betacov_2[1,2]*beta0_2/(beta1_2^3)
+c(x0fit_2,sqrt(varx0_2)) # point est and se
+exp(x0fit_2+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_2))
+```
+
+# Problem 2-i
+
+```{r}
+
+# importing data
+data = tibble(
+  amount = seq(from = 10000, to = 90000, by = 5000),
+  offered = c(4,6,10,12,39,36,22,14,10,12,8,9,3,1,5,2,1),
+  enrolled = c(0,2,4,2,12,14,10,7,5,5,3,5,2,0,4,2,1),
+  passes = offered - enrolled
+)
+
+# defining our x, y, m
+x = data$amount
+y = data$enrolled
+m = data$offered
+
+fit_glm = glm(cbind(y,m-y)~x, family=binomial(link='logit'))
+
+install.packages("ResourceSelection")
+library(ResourceSelection)
+hl = hoslem.test(fit_glm$y, fitted(fit_glm), g=10) # fail to reject H0 >>> good fit!
 ```
 
