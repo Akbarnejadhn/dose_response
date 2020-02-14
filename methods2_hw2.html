@@ -370,12 +370,12 @@ summary {
 
 
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## -- Attaching packages --------------------------------------------------------------------------------- tidyverse 1.2.1 --</code></pre>
+<pre><code>## -- Attaching packages ----------------------------------------------------------------------------------- tidyverse 1.2.1 --</code></pre>
 <pre><code>## v ggplot2 3.2.1     v purrr   0.3.3
 ## v tibble  2.1.3     v dplyr   0.8.3
 ## v tidyr   1.0.0     v stringr 1.4.0
 ## v readr   1.3.1     v forcats 0.4.0</code></pre>
-<pre><code>## -- Conflicts ------------------------------------------------------------------------------------ tidyverse_conflicts() --
+<pre><code>## -- Conflicts -------------------------------------------------------------------------------------- tidyverse_conflicts() --
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code># Problem 1-i
@@ -510,6 +510,22 @@ se_glm = sqrt(vcov(fit_glm)[2,2])
 beta_glm + c(qnorm(0.025),0,-qnorm(0.025))*se</code></pre>
 <pre><code>## [1] -2.144684e-01  3.095043e-05  2.145303e-01</code></pre>
 <p>????????? CI: (-2.144684e-01, 2.145303e-01)</p>
+</div>
+<div id="problem-2-iii" class="section level1">
+<h1>Problem 2-iii)</h1>
+<ol start="3" style="list-style-type: lower-roman">
+<li>How much scholarship should we provide to get 40% yield rate (the percentage of admitted students who enroll?) What is the 95% CI?</li>
+</ol>
+<pre class="r"><code>beta_0 = fit_glm$coefficients[1]
+beta_1 = fit_glm$coefficients[2]
+my_log = log (.4/.6) # -0.4054651
+x0_estimate = (my_log - beta_0)/beta_1    # 40134.29$ scholarship should be offered to have 40% of people who get the                                            offer, enrol in the college
+
+betacov_3 = vcov(fit_glm)  # covariance of beta_0 and beta_1 to gain the variance of the estimate
+var_x0_estimate = betacov_3[1,1]/(beta_1^2) + betacov_3[2,2]*((beta_0 - log(0.4/0.6))^2)/(beta_1^4)-2*betacov_3[1,2]*(beta_0 - log(0.4/0.6))/(beta_1^3)
+
+x0_estimate+c(qnorm(0.025),0,-qnorm(0.025))*sqrt(var_x0_estimate)</code></pre>
+<pre><code>## [1] 30583.04 40134.29 49685.53</code></pre>
 </div>
 
 
