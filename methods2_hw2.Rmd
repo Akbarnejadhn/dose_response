@@ -84,11 +84,10 @@ my_table %>%  knitr::kable()
 
 ```
 
+COMMENT
 
-
-# Problem 1-ii
-Suppose that the dose level is in natural logarithm scale, estimate LD50 with
-90% confidence interval based on the three models.
+## Problem 1-ii
+In this part we want to estimate LD50 (the dose at which 50% of animals die) with 90% confidence interval based on models built based on logit, probit, c-loglog link functions (considering that X is in natural logarithm scale).
 
 ```{r}
 
@@ -124,6 +123,19 @@ c(x0fit_2,sqrt(varx0_2)) # point est and se
 exp(x0fit_2+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_2))
 ```
 
+The table below shows the calculated amounts:
+
+```{r table2}
+
+my_table2 = matrix(c("7.389", "(5.509,9.909)", "7.43583", "(5.582,9.904)",
+                     "8.841249", "(6.636,11.779)"), ncol=2, byrow = TRUE)
+colnames(my_table2) = c("LD50 Estimate Exponentiated", "90% CI for LD50")
+rownames(my_table2) = c("logit", "probit", "c-loglog")
+my_table2 = as.table(my_table2)
+my_table2 %>%  knitr::kable()
+```
+
+
 # Problem 2-i
 
 how is the foodness of fit?
@@ -146,6 +158,7 @@ fit_glm = glm(cbind(y,m-y)~x, family=binomial(link='logit'))
 library(ResourceSelection)
 hl = hoslem.test(fit_glm$y, fitted(fit_glm), g=10) # fail to reject H0 >>> good fit!
 ```
+
 
 # Problem 2-ii)
 ii) How do you interpret the relationship between the scholarship amount

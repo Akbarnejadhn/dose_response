@@ -497,11 +497,12 @@ my_table %&gt;%  knitr::kable()</code></pre>
 </tr>
 </tbody>
 </table>
+<p>COMMENT</p>
 </div>
 </div>
-<div id="problem-1-ii" class="section level1">
-<h1>Problem 1-ii</h1>
-<p>Suppose that the dose level is in natural logarithm scale, estimate LD50 with 90% confidence interval based on the three models.</p>
+<div id="problem-1-ii" class="section level2">
+<h2>Problem 1-ii</h2>
+<p>In this part we want to estimate LD50 (the dose at which 50% of animals die) with 90% confidence interval based on models built based on logit, probit, c-loglog link functions (considering that X is in natural logarithm scale).</p>
 <pre class="r"><code>## Problem 1-ii
 # logit LD50 and CI
 beta0=fit1$coefficients[1]
@@ -545,6 +546,39 @@ c(x0fit_2,sqrt(varx0_2)) # point est and se</code></pre>
 ##   2.1794281   0.1744033</code></pre>
 <pre class="r"><code>exp(x0fit_2+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_2))</code></pre>
 <pre><code>## [1]  6.636337 11.778739</code></pre>
+<p>The table below shows the calculated amounts:</p>
+<pre class="r"><code>my_table2 = matrix(c(&quot;7.389&quot;, &quot;(5.509,9.909)&quot;, &quot;7.43583&quot;, &quot;(5.582,9.904)&quot;,
+                     &quot;8.841249&quot;, &quot;(6.636,11.779)&quot;), ncol=2, byrow = TRUE)
+colnames(my_table2) = c(&quot;LD50 Estimate Exponentiated&quot;, &quot;90% CI for LD50&quot;)
+rownames(my_table2) = c(&quot;logit&quot;, &quot;probit&quot;, &quot;c-loglog&quot;)
+my_table2 = as.table(my_table2)
+my_table2 %&gt;%  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">LD50 Estimate Exponentiated</th>
+<th align="left">90% CI for LD50</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>logit</td>
+<td align="left">7.389</td>
+<td align="left">(5.509,9.909)</td>
+</tr>
+<tr class="even">
+<td>probit</td>
+<td align="left">7.43583</td>
+<td align="left">(5.582,9.904)</td>
+</tr>
+<tr class="odd">
+<td>c-loglog</td>
+<td align="left">8.841249</td>
+<td align="left">(6.636,11.779)</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="problem-2-i" class="section level1">
 <h1>Problem 2-i</h1>
