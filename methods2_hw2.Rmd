@@ -5,11 +5,21 @@ date: "2/12/2020"
 output: html_document
 ---
 
-```{r}
+```{r setup, include=FALSE}
+
+library(ResourceSelection)
 library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE, 
+                      message = FALSE, 
+                      warning = FALSE)
 ```
 
- 
+## problem 1
+
+In this problem we analyze the data collected from a bioassay study, where X is the dosage and Y is the number of animals that have died after taking the drug.
+
+Because we have a binary ooutcome (dying versus not dying), we should model Y-X relationship using logit, probit, cloglog link functions. In this case, the probability of the outcome (dying) is denoted as p and n is the number of animals tested which is 30.
+
 ```{r}
 
 # Problem 1-i
@@ -18,6 +28,7 @@ dose = c(0:4)
 dying = c(2, 8, 15, 23, 27)
 data1 = cbind(dose, dying)
 data1 = as.data.frame(data1)
+data1 %>% knitr::kable()
 
 fit1 = glm(cbind(dying,30-dying)~dose, family=binomial(link='logit'))
 fit2 = glm(cbind(dying,30-dying)~dose, family=binomial(link='probit'))
@@ -55,7 +66,25 @@ predicted3 = predict(fit3, data.frame(dose = 0.01), type = 'response')
 
 ```
 
-I am gonna create my table here
+### Problem 1-i
+
+In this part, we will model  $g(P(dying)) = \alpha + \beta X$ with logit, probit and complementary
+log-log linkk and we are interested in calculating Estimate of $\beta$, 95% CI for $\beta$, Deviance, and $p\hat (dying | x = 0.01)$.
+
+The table belows these estimates:
+
+```{r table}
+
+my_table = matrix(c("1.162", "0.686", "0.747", "(0.806,1.517)", "(0.497,0.876)", "(0.532,0.961)",
+                    "0.379", "0.314", "2.230", "0.09", "0.0853", "0.128"), ncol=4, byrow = FALSE)
+colnames(my_table) = c("beta_hat", "95% CI for beta", "Deviance", "p_hat(dying|x=0.01)")
+rownames(my_table) = c("logit", "probit", "c-loglog")
+my_table = as.table(my_table)
+my_table %>%  knitr::kable()
+
+```
+
+
 
 # Problem 1-ii
 Suppose that the dose level is in natural logarithm scale, estimate LD50 with

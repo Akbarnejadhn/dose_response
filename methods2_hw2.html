@@ -369,23 +369,48 @@ summary {
 </div>
 
 
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## -- Attaching packages ----------------------------------------------------------------------------------- tidyverse 1.2.1 --</code></pre>
-<pre><code>## v ggplot2 3.2.1     v purrr   0.3.3
-## v tibble  2.1.3     v dplyr   0.8.3
-## v tidyr   1.0.0     v stringr 1.4.0
-## v readr   1.3.1     v forcats 0.4.0</code></pre>
-<pre><code>## -- Conflicts -------------------------------------------------------------------------------------- tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
+<div id="problem-1" class="section level2">
+<h2>problem 1</h2>
+<p>In this problem we analyze the data collected from a bioassay study, where X is the dosage and Y is the number of animals that have died after taking the drug.</p>
+<p>Because we have a binary ooutcome (dying versus not dying), we should model Y-X relationship using logit, probit, cloglog link functions. In this case, the probability of the outcome (dying) is denoted as p and n is the number of animals tested which is 30.</p>
 <pre class="r"><code># Problem 1-i
 
 dose = c(0:4)
 dying = c(2, 8, 15, 23, 27)
 data1 = cbind(dose, dying)
 data1 = as.data.frame(data1)
-
-fit1 = glm(cbind(dying,30-dying)~dose, family=binomial(link=&#39;logit&#39;))
+data1 %&gt;% knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">dose</th>
+<th align="right">dying</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">8</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">15</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="right">23</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">27</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>fit1 = glm(cbind(dying,30-dying)~dose, family=binomial(link=&#39;logit&#39;))
 fit2 = glm(cbind(dying,30-dying)~dose, family=binomial(link=&#39;probit&#39;))
 fit3 = glm(cbind(dying,30-dying)~dose, family=binomial(link=&#39;cloglog&#39;))
 
@@ -428,7 +453,52 @@ summary(fit1)$deviance</code></pre>
 predicted1 = predict(fit1, data.frame(dose = 0.01), type = &#39;response&#39;)
 predicted2 = predict(fit2, data.frame(dose = 0.01), type = &#39;response&#39;)
 predicted3 = predict(fit3, data.frame(dose = 0.01), type = &#39;response&#39;)</code></pre>
-<p>I am gonna create my table here</p>
+<div id="problem-1-i" class="section level3">
+<h3>Problem 1-i</h3>
+<p>In this part, we will model <span class="math inline">\(g(P(dying)) = \alpha + \beta X\)</span> with logit, probit and complementary log-log linkk and we are interested in calculating Estimate of <span class="math inline">\(\beta\)</span>, 95% CI for <span class="math inline">\(\beta\)</span>, Deviance, and <span class="math inline">\(p\hat (dying | x = 0.01)\)</span>.</p>
+<p>The table belows these estimates:</p>
+<pre class="r"><code>my_table = matrix(c(&quot;1.162&quot;, &quot;0.686&quot;, &quot;0.747&quot;, &quot;(0.806,1.517)&quot;, &quot;(0.497,0.876)&quot;, &quot;(0.532,0.961)&quot;,
+                    &quot;0.379&quot;, &quot;0.314&quot;, &quot;2.230&quot;, &quot;0.09&quot;, &quot;0.0853&quot;, &quot;0.128&quot;), ncol=4, byrow = FALSE)
+colnames(my_table) = c(&quot;beta_hat&quot;, &quot;95% CI for beta&quot;, &quot;Deviance&quot;, &quot;p_hat(dying|x=0.01)&quot;)
+rownames(my_table) = c(&quot;logit&quot;, &quot;probit&quot;, &quot;c-loglog&quot;)
+my_table = as.table(my_table)
+my_table %&gt;%  knitr::kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">beta_hat</th>
+<th align="left">95% CI for beta</th>
+<th align="left">Deviance</th>
+<th align="left">p_hat(dying|x=0.01)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>logit</td>
+<td align="left">1.162</td>
+<td align="left">(0.806,1.517)</td>
+<td align="left">0.379</td>
+<td align="left">0.09</td>
+</tr>
+<tr class="even">
+<td>probit</td>
+<td align="left">0.686</td>
+<td align="left">(0.497,0.876)</td>
+<td align="left">0.314</td>
+<td align="left">0.0853</td>
+</tr>
+<tr class="odd">
+<td>c-loglog</td>
+<td align="left">0.747</td>
+<td align="left">(0.532,0.961)</td>
+<td align="left">2.230</td>
+<td align="left">0.128</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <div id="problem-1-ii" class="section level1">
 <h1>Problem 1-ii</h1>
 <p>Suppose that the dose level is in natural logarithm scale, estimate LD50 with 90% confidence interval based on the three models.</p>
@@ -493,9 +563,8 @@ m = data$offered
 
 fit_glm = glm(cbind(y,m-y)~x, family=binomial(link=&#39;logit&#39;))
 
-library(ResourceSelection)</code></pre>
-<pre><code>## ResourceSelection 0.3-5   2019-07-22</code></pre>
-<pre class="r"><code>hl = hoslem.test(fit_glm$y, fitted(fit_glm), g=10) # fail to reject H0 &gt;&gt;&gt; good fit!</code></pre>
+library(ResourceSelection)
+hl = hoslem.test(fit_glm$y, fitted(fit_glm), g=10) # fail to reject H0 &gt;&gt;&gt; good fit!</code></pre>
 </div>
 <div id="problem-2-ii" class="section level1">
 <h1>Problem 2-ii)</h1>
