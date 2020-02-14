@@ -97,14 +97,14 @@ exp(x0fit_2+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_2))
 
 # Problem 2-i
 
+how is the foodness of fit?
 ```{r}
 
 # importing data
 data = tibble(
   amount = seq(from = 10000, to = 90000, by = 5000),
   offered = c(4,6,10,12,39,36,22,14,10,12,8,9,3,1,5,2,1),
-  enrolled = c(0,2,4,2,12,14,10,7,5,5,3,5,2,0,4,2,1),
-  passes = offered - enrolled
+  enrolled = c(0,2,4,2,12,14,10,7,5,5,3,5,2,0,4,2,1)
 )
 
 # defining our x, y, m
@@ -114,8 +114,42 @@ m = data$offered
 
 fit_glm = glm(cbind(y,m-y)~x, family=binomial(link='logit'))
 
-install.packages("ResourceSelection")
 library(ResourceSelection)
 hl = hoslem.test(fit_glm$y, fitted(fit_glm), g=10) # fail to reject H0 >>> good fit!
+```
+
+# Problem 2-ii)
+ii) How do you interpret the relationship between the scholarship amount
+and enrollment rate? What is 95% CI?
+
+interpretation:
+
+The log odds ratio of enrollment changes by 3.095e-05 per 1 dollar increase in scholarship. Because we probably don't care about every dollar increase in scholarship, I change the scale and say that The log odds ratio of enrollment changes by 0.3095 per 10,000 dollars increase in scholarship amount.
+
+```{r}
+
+# 95% CI
+beta_glm = fit_glm$coefficients[2]
+se_glm = sqrt(vcov(fit_glm)[2,2])
+beta_glm + c(qnorm(0.025),0,-qnorm(0.025))*se
+```
+
+????????? CI: (-2.144684e-01, 2.145303e-01)
+
+# Problem 2-iii)
+iii) How much scholarship should we provide to get 40% yield rate (the
+percentage of admitted students who enroll?) What is the 95% CI?
+```{r}
+
+beta_0 = fit_glm$coefficients[1]
+beta_1 = fit_glm$coefficients[2]
+my_log = log (.4/.6) # -0.4054651
+x0_estimate = (my_log - beta_0)/beta_1    # 40134.29$ scholarship should be offered to have 40% of people who get the                                            offer, enrol in the college
+
+betacov_3 = vcov(fit_glm)  # covariance of beta_0 and beta_1 to gain the variance of the estimate
+var_x0_estimate = betacov_3[1,1]/(beta_1^2) + betacov_3[2,2]*((beta_0 - log(0.4/0.6))^2)/(beta_1^4)-2*betacov_3[1,2]*(beta_0 - log(0.4/0.6))/(beta_1^3)
+
+x0_estimate+c(qnorm(0.025),0,-qnorm(0.025))*sqrt(var_x0_estimate)
+
 ```
 
