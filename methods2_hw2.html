@@ -449,6 +449,13 @@ summary(fit1)$deviance</code></pre>
 <pre><code>## [1] 0.3136684</code></pre>
 <pre class="r"><code>summary(fit3)$deviance</code></pre>
 <pre><code>## [1] 2.230479</code></pre>
+<pre class="r"><code>### P-value
+pchisq(fit1$deviance, df=3, lower.tail=FALSE)</code></pre>
+<pre><code>## [1] 0.9445968</code></pre>
+<pre class="r"><code>pchisq(fit2$deviance, df=3, lower.tail=FALSE)</code></pre>
+<pre><code>## [1] 0.9574377</code></pre>
+<pre class="r"><code>pchisq(fit3$deviance, df=3, lower.tail=FALSE)</code></pre>
+<pre><code>## [1] 0.5259699</code></pre>
 <pre class="r"><code>### Predictions
 predicted1 = predict(fit1, data.frame(dose = 0.01), type = &#39;response&#39;)
 predicted2 = predict(fit2, data.frame(dose = 0.01), type = &#39;response&#39;)
@@ -497,7 +504,23 @@ my_table %&gt;%  knitr::kable()</code></pre>
 </tr>
 </tbody>
 </table>
-<p>COMMENT</p>
+<ul>
+<li>Comments of <span class="math inline">\(\beta\)</span> Estimate, 95% CI, and <span class="math inline">\(p\hat (dying | x = 0.01)\)</span> for three models:</li>
+</ul>
+<p>We can observe that for logit link function model, the estimate is 1.162 which is the log odds ratio of death in animals for each one unit increase in dose. The 95% CI for this model is (0.806,1.517) which means that we are 95% confident that the true value of beta falls somewhere between 0.806 and 1.517.</p>
+<p>Also, using this model we can say that the estimated probability of death is 0.09 when the animals take dose of 0.01.</p>
+<p>For probit link function model, the estimate is 0.686 which is the difference in Z score associated with each one-unit increase in dose.The 95% CI for this model is (0.497,0.876) which means that we are 95% confident that the true value of beta falls somewhere between 0.497 and 0.876.</p>
+<p>Also, using this model we can say that the estimated probability of death is 0.0853 when the animals take dose of 0.01.</p>
+<p>For c-loglog link function model, the estimate is 0.747 which is the contribution to the complementary-log-log of mortality for a unit change in dose.</p>
+<p>Equivalently, we can say: the log-survival will drops by about (survival function: <span class="math inline">\(1-\pi\)</span>) 2.110 (exp(0.747)) per one unit increase in dose.</p>
+<p>Or we can also say that 0.747 is the log hazard ratio of death per one unit increase in dose.</p>
+<p>The 95% CI for this model is (0.532,0.961) which means that we are 95% confident that the true value of beta falls somewhere between 0.532 and 0.961.</p>
+<p>Also, using this model we can say that the estimated probability of death is 0.128 when the animals take dose of 0.01.</p>
+<ul>
+<li>Comments of Goodness of Fit of three models:</li>
+</ul>
+<p>Since we have 30 animals tested in each group (<span class="math inline">\(m_{i} \geq 30\)</span>), we have our data grouped, so we can use deviance as our goodness of fit. The deviance approximately follows <span class="math inline">\(\chi_{n-p}^{2}\)</span> where n = 5 (the number of groups) and p = 2 (the number of parameters). Which here is <span class="math inline">\(D \sim \chi_{3}^{2}\)</span>.</p>
+<p>For goodness of fit, the null hypothesis is that our model is correctly specified. Here we have a p-value of 0.944 for logit, a p-value of 0.957 for ptobit, and a p-value of 0.526 for c-lolog. Since all values are geater than 0.05, we fail to reject null hypothesis which suggests that all three models fit our data well.However, the amount of deviance is close for logit and probit models compared to c-loglog model. The amount of deviance is much smaller using logit and probit link function models which suggests that the goodness of fit is better in these two models comapred to c-loglog.</p>
 </div>
 </div>
 <div id="problem-1-ii" class="section level2">
@@ -546,6 +569,16 @@ c(x0fit_2,sqrt(varx0_2)) # point est and se</code></pre>
 ##   2.1794281   0.1744033</code></pre>
 <pre class="r"><code>exp(x0fit_2+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_2))</code></pre>
 <pre><code>## [1]  6.636337 11.778739</code></pre>
+<p>For logit, we know that the link function is: <span class="math display">\[ g(\pi) = log (\pi/1-\pi) = \beta_{0} + \beta_{1}X\]</span> So, because <span class="math inline">\(\pi = 0.5\)</span> when calculating <span class="math inline">\(LD_{50}\)</span>, we will have:</p>
+<p><span class="math display">\[ log (0.5/1-0.5)=log 1 = 0 \]</span></p>
+<p>Which means that <span class="math inline">\(\beta_{0} + \beta_{1}X = 0\)</span> and $ x_{0} = - <em>{0}/</em>{1}$. Substituting the coefficients we will have <span class="math inline">\(exp(x_{0}) = 7.389\)</span>, and then we can calculate the CI.</p>
+<p>For probit, we know that the link function is: <span class="math display">\[ g(\pi) = \phi^{-1}(\pi) = \beta_{0} + \beta_{1}X\]</span> So, because <span class="math inline">\(\pi = 0.5\)</span> when calculating <span class="math inline">\(LD_{50}\)</span>, we will have:</p>
+<p><span class="math display">\[\phi^{-1}(0.5)= \beta_{0} + \beta_{1}X \]</span></p>
+<p>Which means that <span class="math inline">\(\beta_{0} + \beta_{1}X = 0\)</span> and <span class="math inline">\(x_{0} = - \beta_{0}/\beta_{1}\)</span>. Substituting the coefficients we will have <span class="math inline">\(exp(x_{0}) = 7.43583\)</span>, and then we can calculate the CI.</p>
+<p>For logit, we know that the link function is:</p>
+<p><span class="math display">\[g(\pi)=log(-log(1-\pi))=\beta_{0} + \beta_{1}X\]</span> So, because <span class="math inline">\(\pi = 0.5\)</span> when calculating <span class="math inline">\(LD_{50}\)</span>, we will have:</p>
+<p><span class="math display">\[log(log(2))= -0.366 = \beta_{0} + \beta_{1}X \]</span></p>
+<p>Substituting the coefficients we will have <span class="math inline">\(exp(x_{0}) = 8.84\)</span>, and then we can calculate the CI.</p>
 <p>The table below shows the calculated amounts:</p>
 <pre class="r"><code>my_table2 = matrix(c(&quot;7.389&quot;, &quot;(5.509,9.909)&quot;, &quot;7.43583&quot;, &quot;(5.582,9.904)&quot;,
                      &quot;8.841249&quot;, &quot;(6.636,11.779)&quot;), ncol=2, byrow = TRUE)
@@ -582,7 +615,7 @@ my_table2 %&gt;%  knitr::kable()</code></pre>
 </div>
 <div id="problem-2-i" class="section level1">
 <h1>Problem 2-i</h1>
-<p>how is the foodness of fit?</p>
+<p>In this question, we have</p>
 <pre class="r"><code># importing data
 data = tibble(
   amount = seq(from = 10000, to = 90000, by = 5000),

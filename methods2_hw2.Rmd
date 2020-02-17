@@ -59,6 +59,11 @@ summary(fit1)$deviance
 summary(fit2)$deviance
 summary(fit3)$deviance
 
+### P-value
+pchisq(fit1$deviance, df=3, lower.tail=FALSE)
+pchisq(fit2$deviance, df=3, lower.tail=FALSE)
+pchisq(fit3$deviance, df=3, lower.tail=FALSE)
+
 ### Predictions
 predicted1 = predict(fit1, data.frame(dose = 0.01), type = 'response')
 predicted2 = predict(fit2, data.frame(dose = 0.01), type = 'response')
@@ -84,7 +89,33 @@ my_table %>%  knitr::kable()
 
 ```
 
-COMMENT
+* Comments of $\beta$ Estimate, 95% CI, and $p\hat (dying | x = 0.01)$ for three models:
+
+We can observe that for logit link function model, the estimate is 1.162 which is the log odds ratio of death in animals for each one unit increase in dose. The 95% CI for this model is (0.806,1.517) which means that we are 95% confident that the true value of beta falls somewhere between 0.806 and 1.517.
+
+Also, using this model we can say that the estimated probability of death is 0.09 when the animals take dose of 0.01.
+
+For probit link function model, the estimate is 0.686 which is the difference in Z score associated with each one-unit increase in dose.The 95% CI for this model is (0.497,0.876) which means that we are 95% confident that the true value of beta falls somewhere between 0.497 and 0.876.
+
+Also, using this model we can say that the estimated probability of death is 0.0853 when the animals take dose of 0.01.
+
+For c-loglog link function model, the estimate is 0.747 which is the contribution to the complementary-log-log of mortality for a unit change in dose. 
+
+Equivalently, we can say: the log-survival will drops by about (survival function: $1-\pi$) 2.110 (exp(0.747)) per one unit increase in dose.
+
+Or we can also say that 0.747 is the log hazard ratio of death per one unit increase in dose.
+
+The 95% CI for this model is (0.532,0.961) which means that we are 95% confident that the true value of beta falls somewhere between 0.532 and 0.961.	
+
+Also, using this model we can say that the estimated probability of death is 0.128 when the animals take dose of 0.01.
+
+
+* Comments of Goodness of Fit of three models:
+
+Since we have 30 animals tested in each group ($m_{i} \geq 30$), we have our data grouped, so we can use deviance as our goodness of fit. The deviance approximately follows $\chi_{n-p}^{2}$ where n = 5 (the number of groups) and p = 2 (the number of parameters). Which here is $D \sim \chi_{3}^{2}$.
+
+For goodness of fit, the null hypothesis is that our model is correctly specified. Here we have a p-value of 0.944 for logit, a p-value of 0.957 for ptobit, and a p-value of 0.526 for c-lolog. Since all values are geater than 0.05, we fail to reject null hypothesis which suggests that all three models fit our data well.However, the amount of deviance is close for logit and probit models compared to c-loglog model. The amount of deviance is much smaller using logit and probit link function models which suggests that the goodness of fit is better in these two models comapred to c-loglog.
+
 
 ## Problem 1-ii
 In this part we want to estimate LD50 (the dose at which 50% of animals die) with 90% confidence interval based on models built based on logit, probit, c-loglog link functions (considering that X is in natural logarithm scale).
@@ -123,6 +154,32 @@ c(x0fit_2,sqrt(varx0_2)) # point est and se
 exp(x0fit_2+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_2))
 ```
 
+For logit, we know that the link function is:
+$$ g(\pi) = log (\pi/1-\pi) = \beta_{0} + \beta_{1}X$$
+So, because $\pi = 0.5$ when calculating $LD_{50}$, we will have:
+
+$$ log (0.5/1-0.5)=log 1 = 0 $$
+
+Which means that $\beta_{0} + \beta_{1}X = 0$ and $ x_{0} = - \beta_{0}/\beta_{1}$. Substituting the coefficients we will have $exp(x_{0}) = 7.389$, and then we can calculate the CI.
+
+For probit, we know that the link function is:
+$$ g(\pi) = \phi^{-1}(\pi) = \beta_{0} + \beta_{1}X$$
+So, because $\pi = 0.5$ when calculating $LD_{50}$, we will have:
+
+$$\phi^{-1}(0.5)= \beta_{0} + \beta_{1}X $$
+
+Which means that $\beta_{0} + \beta_{1}X = 0$ and $x_{0} = - \beta_{0}/\beta_{1}$. Substituting the coefficients we will have $exp(x_{0}) = 7.43583$, and then we can calculate the CI.
+
+For logit, we know that the link function is:
+
+$$g(\pi)=log(-log(1-\pi))=\beta_{0} + \beta_{1}X$$
+So, because $\pi = 0.5$ when calculating $LD_{50}$, we will have:
+
+$$log(log(2))= -0.366 = \beta_{0} + \beta_{1}X $$
+
+Substituting the coefficients we will have $exp(x_{0}) = 8.84$, and then we can calculate the CI. 
+
+
 The table below shows the calculated amounts:
 
 ```{r table2}
@@ -138,7 +195,7 @@ my_table2 %>%  knitr::kable()
 
 # Problem 2-i
 
-how is the foodness of fit?
+In this question, we have 
 ```{r}
 
 # importing data
