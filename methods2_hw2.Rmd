@@ -1,7 +1,7 @@
 ---
-title: "dose_response"
+title: "MethodsII_HWII"
 author: "Hana Akbarnejad"
-date: "2/12/2020"
+date: "2/18/2020"
 output: html_document
 ---
 
@@ -195,7 +195,10 @@ my_table2 %>%  knitr::kable()
 
 # Problem 2-i
 
-In this question, we have 
+In this question, we have analyzed the relationship between the amount of one-time two-year scholarship, on the number of people who got enrolled in the program out of all who got the offer. 
+
+The data presented here is grouped data, but it is sparse data ($m_{i} < 30$). So, for assessing the goodness of fit we cannot use Deviance or generalized Pearson $\chi^2$ because the asympthotic distribution doesn't hold anymore. Instead, we use Hosmer-Lemeshow statistic: $X_{HL}^2$.
+
 ```{r}
 
 # importing data
@@ -216,28 +219,30 @@ library(ResourceSelection)
 hl = hoslem.test(fit_glm$y, fitted(fit_glm), g=10) # fail to reject H0 >>> good fit!
 ```
 
+Using this method, we have the X-squared = 1.6111 with degrees of freedom = 8 ($\chi_{g-2}^2$ where g = 10)  and p-value = 0.9907. This result indicates that we fail to reject $H_{0}$ which means that the model fits the data well.
 
 # Problem 2-ii)
-ii) How do you interpret the relationship between the scholarship amount
-and enrollment rate? What is 95% CI?
-
-interpretation:
-
-The log odds ratio of enrollment changes by 3.095e-05 per 1 dollar increase in scholarship. Because we probably don't care about every dollar increase in scholarship, I change the scale and say that The log odds ratio of enrollment changes by 0.3095 per 10,000 dollars increase in scholarship amount.
+looking at the relationship between the scholarship amount and the enrollment, we can see that the log odds ratio of enrollment changes by 3.095e-05 per 1 dollar increase in scholarship. Because we probably don't care about every dollar increase in scholarship, I change the scale and say that The log odds ratio of enrollment changes by 0.3095 per 10,000 dollars increase in scholarship amount.
 
 ```{r}
 
 # 95% CI
 beta_glm = fit_glm$coefficients[2]
 se_glm = sqrt(vcov(fit_glm)[2,2])
-beta_glm + c(qnorm(0.025),0,-qnorm(0.025))*se
+beta_glm + c(qnorm(0.025),0,-qnorm(0.025))*se_glm
 ```
 
-????????? CI: (-2.144684e-01, 2.145303e-01)
+The 95% CI for $\hat{\beta_{1}}$ is (1.197845e-05, 4.992240e-05) for unit 1 dollar and equivalently (0.12, 0.5) for the scale of $10,000 increase in the amount of scholarship.
 
 # Problem 2-iii)
-iii) How much scholarship should we provide to get 40% yield rate (the
-percentage of admitted students who enroll?) What is the 95% CI?
+To determine the amount of scholarship we should provide to get 40% yield rate and the 95% CI, we should use $\pi = 0.4$. Using logistic regression, we will have:
+
+$$g(\pi) = log (\pi/1-\pi) = \beta_{0} + \beta_{1}X$$
+So, we see that:
+
+$$g(\pi) = log (0.4/1-0.4) = \beta_{0} + \beta_{1}X$$
+So, $$X = (log(0.4/0.6)-\beta{0})/\beta{1}$$
+
 ```{r}
 
 beta_0 = fit_glm$coefficients[1]
@@ -248,7 +253,8 @@ x0_estimate = (my_log - beta_0)/beta_1    # 40134.29$ scholarship should be offe
 betacov_3 = vcov(fit_glm)  # covariance of beta_0 and beta_1 to gain the variance of the estimate
 var_x0_estimate = betacov_3[1,1]/(beta_1^2) + betacov_3[2,2]*((beta_0 - log(0.4/0.6))^2)/(beta_1^4)-2*betacov_3[1,2]*(beta_0 - log(0.4/0.6))/(beta_1^3)
 
-x0_estimate+c(qnorm(0.025),0,-qnorm(0.025))*sqrt(var_x0_estimate)
+x0_estimate+c(qnorm(0.025),-qnorm(0.025))*sqrt(var_x0_estimate)
 
 ```
 
+We can see that $\hat{x_{0}} = 40134.29$ which means that we need 4.013429 ten-thousand dollars scholarship to get 40% yield rate and the 95% CI for for $\hat{x_{0}}$ is (30583.04, 49685.53) is dollars scale or equivalently (3.06, 4.97) in ten-thoundas dollars scale.
