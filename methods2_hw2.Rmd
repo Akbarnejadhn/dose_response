@@ -1,8 +1,8 @@
 ---
-title: "MethodsII_HWII"
+title: "Practicing the concepts of Logit, Probit, c-log-log Models, Grouped and Sparse Data, Goodness of Fit"
 author: "Hana Akbarnejad"
 date: "2/18/2020"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +11,8 @@ library(ResourceSelection)
 library(tidyverse)
 knitr::opts_chunk$set(echo = TRUE, 
                       message = FALSE, 
-                      warning = FALSE)
+                      warning = FALSE,
+                      results = 'hide')
 ```
 
 ## problem 1
@@ -117,7 +118,7 @@ Since we have 30 animals tested in each group ($m_{i} \geq 30$), we have our dat
 For goodness of fit, the null hypothesis is that our model is correctly specified. Here we have a p-value of 0.944 for logit, a p-value of 0.957 for ptobit, and a p-value of 0.526 for c-lolog. Since all values are geater than 0.05, we fail to reject null hypothesis which suggests that all three models fit our data well.However, the amount of deviance is close for logit and probit models compared to c-loglog model. The amount of deviance is much smaller using logit and probit link function models which suggests that the goodness of fit is better in these two models comapred to c-loglog.
 
 
-## Problem 1-ii
+### Problem 1-ii
 In this part we want to estimate LD50 (the dose at which 50% of animals die) with 90% confidence interval based on models built based on logit, probit, c-loglog link functions (considering that X is in natural logarithm scale).
 
 ```{r}
@@ -155,15 +156,15 @@ exp(x0fit_2+c(qnorm(0.05),-qnorm(0.05))*sqrt(varx0_2))
 ```
 
 For logit, we know that the link function is:
-$$ g(\pi) = log (\pi/1-\pi) = \beta_{0} + \beta_{1}X$$
+$$g(\pi) = log (\pi/1-\pi) = \beta_{0} + \beta_{1}X$$
 So, because $\pi = 0.5$ when calculating $LD_{50}$, we will have:
 
-$$ log (0.5/1-0.5)=log 1 = 0 $$
+$$log (0.5/1-0.5)=log 1 = 0$$
 
-Which means that $\beta_{0} + \beta_{1}X = 0$ and $ x_{0} = - \beta_{0}/\beta_{1}$. Substituting the coefficients we will have $exp(x_{0}) = 7.389$, and then we can calculate the CI.
+Which means that $\beta_{0} + \beta_{1}X = 0$ and $x_{0} = - \beta_{0}/\beta_{1}$. Substituting the coefficients we will have $exp(x_{0}) = 7.389$, and then we can calculate the CI.
 
 For probit, we know that the link function is:
-$$ g(\pi) = \phi^{-1}(\pi) = \beta_{0} + \beta_{1}X$$
+$$g(\pi) = \phi^{-1}(\pi) = \beta_{0} + \beta_{1}X$$
 So, because $\pi = 0.5$ when calculating $LD_{50}$, we will have:
 
 $$\phi^{-1}(0.5)= \beta_{0} + \beta_{1}X $$
@@ -192,8 +193,9 @@ my_table2 = as.table(my_table2)
 my_table2 %>%  knitr::kable()
 ```
 
+## Problem 2
 
-# Problem 2-i
+### Problem 2-i
 
 In this question, we have analyzed the relationship between the amount of one-time two-year scholarship, on the number of people who got enrolled in the program out of all who got the offer. 
 
@@ -221,7 +223,7 @@ hl = hoslem.test(fit_glm$y, fitted(fit_glm), g=10) # fail to reject H0 >>> good 
 
 Using this method, we have the X-squared = 1.6111 with degrees of freedom = 8 ($\chi_{g-2}^2$ where g = 10)  and p-value = 0.9907. This result indicates that we fail to reject $H_{0}$ which means that the model fits the data well.
 
-# Problem 2-ii)
+### Problem 2-ii
 looking at the relationship between the scholarship amount and the enrollment, we can see that the log odds ratio of enrollment changes by 3.095e-05 per 1 dollar increase in scholarship. Because we probably don't care about every dollar increase in scholarship, I change the scale and say that The log odds ratio of enrollment changes by 0.3095 per 10,000 dollars increase in scholarship amount.
 
 ```{r}
@@ -234,7 +236,7 @@ beta_glm + c(qnorm(0.025),0,-qnorm(0.025))*se_glm
 
 The 95% CI for $\hat{\beta_{1}}$ is (1.197845e-05, 4.992240e-05) for unit 1 dollar and equivalently (0.12, 0.5) for the scale of $10,000 increase in the amount of scholarship.
 
-# Problem 2-iii)
+### Problem 2-iii
 To determine the amount of scholarship we should provide to get 40% yield rate and the 95% CI, we should use $\pi = 0.4$. Using logistic regression, we will have:
 
 $$g(\pi) = log (\pi/1-\pi) = \beta_{0} + \beta_{1}X$$
