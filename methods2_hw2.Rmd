@@ -5,6 +5,8 @@ date: "2/18/2020"
 output: pdf_document
 ---
 
+**If needed, please find the Rmd file attached**
+
 ```{r setup, include=FALSE}
 
 library(ResourceSelection)
