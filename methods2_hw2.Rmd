@@ -72,6 +72,8 @@ predicted3 = predict(fit3, data.frame(dose = 0.01), type = 'response')
 
 ```
 
+`r data1 %>% knitr::kable()`
+
 ### Problem 1-i
 
 In this part, we will model  $g(P(dying)) = \alpha + \beta X$ with logit, probit and complementary
@@ -83,39 +85,31 @@ The table belows these estimates:
 
 my_table = matrix(c("1.162", "0.686", "0.747", "(0.806,1.517)", "(0.497,0.876)", "(0.532,0.961)",
                     "0.379", "0.314", "2.230", "0.09", "0.0853", "0.128"), ncol=4, byrow = FALSE)
-colnames(my_table) = c("beta_hat", "95% CI for beta", "Deviance", "p_hat(dying|x=0.01)")
+colnames(my_table) = c("Estimate", "95% CI for beta", "Deviance", "p_hat(dying|x=0.01)")
 rownames(my_table) = c("logit", "probit", "c-loglog")
 my_table = as.table(my_table)
-my_table %>%  knitr::kable()
-
 ```
+
+`r my_table %>%  knitr::kable()`
 
 * Comments of $\beta$ Estimate, 95% CI, and $p\hat (dying | x = 0.01)$ for three models:
 
-We can observe that for logit link function model, the estimate is 1.162 which is the log odds ratio of death in animals for each one unit increase in dose. The 95% CI for this model is (0.806,1.517) which means that we are 95% confident that the true value of beta falls somewhere between 0.806 and 1.517.
+We can observe that logit model has the highest estimate for $\beta$ and the probit model has the lowest. All estimates are positive which means that the risk of death increases with the increase in dose taken. The probability of death given the dose of 0.01 is similar in all three models, however the c-loglog model has the highest estimate. 
 
-Also, using this model we can say that the estimated probability of death is 0.09 when the animals take dose of 0.01.
+for logit link function model, the estimate is 1.162 which is the log odds ratio of death in animals for each one unit increase in dose. The 95% CI for this model is (0.806,1.517) which means that we are 95% confident that the true value of beta falls somewhere between 0.806 and 1.517. Also, using this model we can say that the estimated probability of death is 0.09 when the animals take dose of 0.01.
 
-For probit link function model, the estimate is 0.686 which is the difference in Z score associated with each one-unit increase in dose.The 95% CI for this model is (0.497,0.876) which means that we are 95% confident that the true value of beta falls somewhere between 0.497 and 0.876.
+For probit link function model, the estimate is 0.686 which is the difference in Z score associated with each one-unit increase in dose.The 95% CI for this model is (0.497,0.876) which means that we are 95% confident that the true value of beta falls somewhere between 0.497 and 0.876. Also, using this model we can say that the estimated probability of death is 0.0853 when the animals take dose of 0.01.
 
-Also, using this model we can say that the estimated probability of death is 0.0853 when the animals take dose of 0.01.
+For c-loglog link function model, the estimate is 0.747 which is the contribution to the complementary-log-log of mortality for a unit change in dose. Equivalently, we can say: the log-survival will drops by about (survival function: $1-\pi$) 2.110 (exp(0.747)) per one unit increase in dose. Or we can also say that 0.747 is the log hazard ratio of death per one unit increase in dose.
 
-For c-loglog link function model, the estimate is 0.747 which is the contribution to the complementary-log-log of mortality for a unit change in dose. 
-
-Equivalently, we can say: the log-survival will drops by about (survival function: $1-\pi$) 2.110 (exp(0.747)) per one unit increase in dose.
-
-Or we can also say that 0.747 is the log hazard ratio of death per one unit increase in dose.
-
-The 95% CI for this model is (0.532,0.961) which means that we are 95% confident that the true value of beta falls somewhere between 0.532 and 0.961.	
-
-Also, using this model we can say that the estimated probability of death is 0.128 when the animals take dose of 0.01.
+The 95% CI for this model is (0.532,0.961) which means that we are 95% confident that the true value of beta falls somewhere between 0.532 and 0.961.Also, using this model we can say that the estimated probability of death is 0.128 when the animals take dose of 0.01.
 
 
 * Comments of Goodness of Fit of three models:
 
 Since we have 30 animals tested in each group ($m_{i} \geq 30$), we have our data grouped, so we can use deviance as our goodness of fit. The deviance approximately follows $\chi_{n-p}^{2}$ where n = 5 (the number of groups) and p = 2 (the number of parameters). Which here is $D \sim \chi_{3}^{2}$.
 
-For goodness of fit, the null hypothesis is that our model is correctly specified. Here we have a p-value of 0.944 for logit, a p-value of 0.957 for ptobit, and a p-value of 0.526 for c-lolog. Since all values are geater than 0.05, we fail to reject null hypothesis which suggests that all three models fit our data well.However, the amount of deviance is close for logit and probit models compared to c-loglog model. The amount of deviance is much smaller using logit and probit link function models which suggests that the goodness of fit is better in these two models comapred to c-loglog.
+For goodness of fit, the null hypothesis is that our model is correctly specified. Here we have a p-value of 0.944 for logit, a p-value of 0.957 for ptobit, and a p-value of 0.526 for c-lolog. Since all values are geater than 0.05, we fail to reject null hypothesis which suggests that all three models fit our data well.However, the amount of deviance is close for logit and probit models compared to c-loglog model. The amount of deviance is smaller using logit and probit link function models which suggests that the goodness of fit is better in these two models comapred to c-loglog.
 
 
 ### Problem 1-ii
@@ -193,6 +187,10 @@ my_table2 = as.table(my_table2)
 my_table2 %>%  knitr::kable()
 ```
 
+`r my_table2 %>%  knitr::kable()`
+
+We can see that  the logit and probit estimates and 90% confidence intervals are similar and that the estimate of the 50% lethal dose for c-loglog model is higher than logit and probit, and the confidence interval is wider than those two methods.
+
 ## Problem 2
 
 ### Problem 2-i
@@ -224,7 +222,7 @@ hl = hoslem.test(fit_glm$y, fitted(fit_glm), g=10) # fail to reject H0 >>> good 
 Using this method, we have the X-squared = 1.6111 with degrees of freedom = 8 ($\chi_{g-2}^2$ where g = 10)  and p-value = 0.9907. This result indicates that we fail to reject $H_{0}$ which means that the model fits the data well.
 
 ### Problem 2-ii
-looking at the relationship between the scholarship amount and the enrollment, we can see that the log odds ratio of enrollment changes by 3.095e-05 per 1 dollar increase in scholarship. Because we probably don't care about every dollar increase in scholarship, I change the scale and say that The log odds ratio of enrollment changes by 0.3095 per 10,000 dollars increase in scholarship amount.
+looking at the relationship between the scholarship amount and the enrollment, we can see that the log odds ratio of enrollment changes by 3.095e-05 per 1 dollar increase in scholarship. Because we probably don't care about every dollar increase in scholarship, I change the scale and say that The log odds ratio of enrollment is 0.3095 per 10,000 dollars increase in scholarship amount. This intrepretation is equivalent to exponentiated interpretation, saying that: The odds ratio of enrollment is 1.363 per 10,000 dollars increase in scholarship amount.
 
 ```{r}
 
